@@ -1,6 +1,7 @@
 ## About
 
 App for quick access to youtube videos from your playlist
+Move to the end of the playlist with a single click
 
 example https://youtube-fast-playlist.vercel.app/?playlistId=PLPSk39C-ml8sAklFfKTlVJcGTpGiwugC4
 
