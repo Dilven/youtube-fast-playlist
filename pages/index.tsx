@@ -5,9 +5,13 @@ import styles from "../styles/Home.module.css";
 import { styled } from "@stitches/react";
 import { blackA } from "@radix-ui/colors";
 import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
-
-const YOUTUBE_PLAYLIST_ITEMS_API =
-  "https://www.googleapis.com/youtube/v3/playlistItems";
+import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import { PLAYLIST_ITEMS } from "constants/query-keys";
+import { Pagination } from "@mantine/core";
+import { ApiResponse } from "models/youtube";
+import { YoutubeApi } from "services/youtube";
+import { InternalApi } from "services/internal-api";
 
 const Img = styled(Image, {
   objectFit: "cover",
@@ -17,14 +21,7 @@ const Img = styled(Image, {
 const Box = styled("div", {});
 
 export async function getServerSideProps() {
-  console.log(
-    "🚀 ~ file: index.tsx ~ line 10 ~ getServerSideProps ~ process.env.YOUTUBE_API_KEY",
-    process.env.YOUTUBE_API_KEY
-  );
-  const res = await fetch(
-    `${YOUTUBE_PLAYLIST_ITEMS_API}?part=snippet&maxResults=50&playlistId=PLPSk39C-ml8sAklFfKTlVJcGTpGiwugC4&key=${process.env.YOUTUBE_API_KEY}`
-  );
-  const data = await res.json();
+  const data = await YoutubeApi.fetchPlaylistItems();
   return {
     props: {
       data,
@@ -32,28 +29,27 @@ export async function getServerSideProps() {
   };
 }
 
-type Item = {
-  id: string;
-  snippet: {
-    title: string;
-    thumbnails: {
-      default: { url: string; width: number; height: number };
-      high: { url: string; width: number; height: number };
-      maxres: { url: string; width: number; height: number };
-      medium: { url: string; width: number; height: number };
-      standard: { url: string; width: number; height: number };
-    };
-    resourceId: { videoId: string };
-  };
-};
-
 type Props = {
-  data: {
-    items: Item[];
-  };
+  data: ApiResponse;
 };
 
-const Home: NextPage<Props> = ({ data }) => {
+const Home: NextPage<Props> = (props) => {
+  const [page, setPage] = useState(0);
+  const [nextPageToken, setNextPageToken] = useState<string | undefined>(
+    props.data.nextPageToken
+  );
+  const { data, error } = useQuery(
+    [PLAYLIST_ITEMS, page],
+    () => InternalApi.fetchPlaylistItems(page, nextPageToken),
+    { keepPreviousData: true }
+  );
+
+  useEffect(() => {
+    setNextPageToken(data?.nextPageToken);
+  }, [data?.nextPageToken]);
+  if (error) return <p>error</p>;
+  if (!data?.pageInfo) return <p>No data</p>;
+  if (!data) return <p>No data</p>;
   return (
     <div className={styles.container}>
       <Head>
@@ -61,6 +57,14 @@ const Home: NextPage<Props> = ({ data }) => {
       </Head>
       <main className={styles.main}>
         <h1 className={styles.title}>My playlist</h1>
+        <Pagination
+          page={page}
+          onChange={setPage}
+          total={Math.round(
+            data.pageInfo.totalResults / data.pageInfo.resultsPerPage
+          )}
+        />
+        ;
         <ul className={styles.grid}>
           {data.items.map(({ id, snippet }) => {
             const { title, thumbnails, resourceId } = snippet;
