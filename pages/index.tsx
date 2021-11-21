@@ -43,7 +43,7 @@ type Item = {
       medium: { url: string; width: number; height: number };
       standard: { url: string; width: number; height: number };
     };
-    resourceId: string;
+    resourceId: { videoId: string };
   };
 };
 
