@@ -6,11 +6,12 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { YoutubeApi } from "services/youtube";
 
 export default methodHandler({
-  get: withAsync((
-    req: NextApiRequest,
-    res: NextApiResponse<ApiResponse>
-  ) => {
-    console.log("🚀 ~ file: playlistitem.ts ~ line 14 ~ req.query.pageToken", req.query.pageToken)
-    return  YoutubeApi.fetchPlaylistItems(undefined, req.query.pageToken as string)
-  })
-})
+  get: withAsync((req: NextApiRequest, res: NextApiResponse<ApiResponse>) => {
+    const foo = YoutubeApi.fetchPlaylistItems(
+      req.query.playlistId as string,
+      Number(req.query.pages as string),
+      req.query.pageToken as string
+    );
+    return foo;
+  }),
+});
