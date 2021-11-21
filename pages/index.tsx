@@ -3,7 +3,21 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
-const Home: NextPage = () => {
+const YOUTUBE_PLAYLIST_ITEMS_API = 'https://www.googleapis.com/youtube/v3/playlistItems';
+
+export async function getServerSideProps() {
+  console.log("🚀 ~ file: index.tsx ~ line 10 ~ getServerSideProps ~ process.env.YOUTUBE_API_KEY", process.env.YOUTUBE_API_KEY)
+  const res = await fetch(`${YOUTUBE_PLAYLIST_ITEMS_API}?part=snippet&maxResults=50&playlistId=PLPSk39C-ml8sAklFfKTlVJcGTpGiwugC4&key=${process.env.YOUTUBE_API_KEY}`)
+  const data = await res.json();
+  return {
+    props: {
+      data
+    }
+  }
+}
+
+const Home: NextPage = ({ data }) => {
+  console.log('data', data);
   return (
     <div className={styles.container}>
       <Head>
