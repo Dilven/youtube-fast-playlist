@@ -67,10 +67,17 @@
 
 .grid {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   flex-wrap: wrap;
   max-width: 800px;
+  list-style: none;
+  padding: 0;
+  margin-left: 0;
+}
+
+.grid img {
+  max-width: 100%;
 }
 
 .card {
