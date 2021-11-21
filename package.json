@@ -10,7 +10,7 @@
     "format:fix": "prettier --write .",
     "format:check": "prettier --check .",
     "typing:check": "tsc --noEmit",
-    "static:check": "npm run typing:check && npm run lint:check && npm run format:check",
+    "static:check": "npm run typing:check && npm run lint && npm run format:check",
     "static:fix": "npm run lint:fix && npm run format:fix"
   },
   "dependencies": {

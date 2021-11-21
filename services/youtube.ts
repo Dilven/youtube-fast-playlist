@@ -18,7 +18,7 @@ const fetchPlaylistItems = async (
     key: process.env.YOUTUBE_API_KEY,
   };
   let pageToken = providedToken;
-  if (pages > 0) {
+  if(pages < 0) throw new Error('pages cannot be less then 0')
     let data: ApiResponse[] = [];
     for (let fetchedPages = 0; fetchedPages < pages; fetchedPages++) {
       const queryParams = getQueryParams({
@@ -31,7 +31,6 @@ const fetchPlaylistItems = async (
       data = [...data, response.data];
     }
     return data;
-  }
 };
 
 export const YoutubeApi = {
