@@ -2,6 +2,8 @@
 
 App for quick access to youtube videos from your playlist
 
+example https://youtube-fast-playlist.vercel.app/?playlistId=PLPSk39C-ml8sAklFfKTlVJcGTpGiwugC4
+
 ## Requirements
 
 .env.local

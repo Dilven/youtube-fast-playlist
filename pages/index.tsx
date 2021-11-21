@@ -27,11 +27,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     context.query
   );
   const playlistId = context.query.playlistId as string;
-  const data = await YoutubeApi.fetchPlaylistItems(playlistId, 1, undefined);
+  // const data = await YoutubeApi.fetchPlaylistItems(playlistId, 1, undefined);
 
   return {
     props: {
-      data,
+      // data,
       playlistId,
     },
   };
@@ -44,7 +44,6 @@ type Props = {
 
 const Home: NextPage<Props> = (props) => {
   const queryClient = useQueryClient();
-
   const [previousPage, setPreviousPage] = useState(1);
   const [page, setPage] = useState(1);
   const [nextPageToken, setNextPageToken] = useState<string | undefined>(
