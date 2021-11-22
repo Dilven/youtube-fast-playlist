@@ -1,3 +1,7 @@
+# Youtube-fast-playlist
+<p align="center">
+   <img src="docs/demo.png"><br/>
+</p>
 ## About
 
 App for quick access to youtube videos from your playlist
