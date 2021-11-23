@@ -1,4 +1,5 @@
 # Youtube-fast-playlist
+
 <p align="center">
    <img src="docs/demo.png"><br/>
 </p>
@@ -6,7 +7,10 @@
 ## About
 
 App for quick access to youtube videos from your playlist
-Move to the end of the playlist with a single click
+- move to the end of the playlist with a single click
+- scroll to the currently playing track
+- embedded youtube player
+- after switching to the selected page the preceding pages are cached
 
 example https://youtube-fast-playlist.vercel.app/?playlistId=PLPSk39C-ml8sAklFfKTlVJcGTpGiwugC4
 

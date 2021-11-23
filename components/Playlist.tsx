@@ -1,4 +1,12 @@
-import { Loader, Notification, Pagination } from "@mantine/core";
+import {
+  Col,
+  Container,
+  Grid,
+  Loader,
+  Notification,
+  Pagination,
+} from "@mantine/core";
+import { useScrollIntoView } from "@mantine/hooks";
 import { blackA } from "@radix-ui/colors";
 import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
 import { Cross1Icon } from "@radix-ui/react-icons";
@@ -6,20 +14,71 @@ import { styled } from "@stitches/react";
 import { PLAYLIST_ITEMS } from "constants/query-keys";
 import { ApiResponse } from "models/youtube";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { InternalApi } from "services/internal-api";
-import styles from "../styles/Home.module.css";
+import { MAX_RESULTS_PER_PAGE_API } from "services/youtube";
+import { useStore } from "store";
 
 const Img = styled(Image, {
   objectFit: "cover",
   width: "100%",
-  height: "100%",
 });
 const Box = styled("div", {});
 
+const PlaylistGrid = styled(Grid, {
+  marginTop: "30px",
+  maxHeight: "calc(100vh - 195px)",
+  overflowY: "scroll",
+  overflowX: "unset",
+  width: "100%",
+  marginBottom: "10px",
+  "&::-webkit-scrollbar-track": {
+    boxShadow: "inset 0 0 6px rgba(0, 0, 0, 0.3)",
+    "-webkit-box-shadow": "inset 0 0 6px rgba(0, 0, 0, 0.3)",
+    borderRadius: "10px",
+  },
+  "&::-webkit-scrollbar": {
+    width: "12px",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    borderRadius: "10px",
+    "-webkit-box-shadow": "inset 0 0 6px rgba(0, 0, 0, 0.3)",
+    backgroundColor: "#fee36e",
+  },
+  "& > li": {
+    minWidth: "100%",
+  },
+});
+
+const PlaylistItem = styled(Col, {
+  cursor: "pointer",
+  padding: "15px",
+  variants: {
+    type: {
+      selected: {
+        border: "1px solid #222",
+        boxShadow: "3px 3px 0 #222",
+        borderWidth: "3px 3px 5px 5px",
+        borderRadius: "4% 95% 6% 95%/95% 4% 92% 5%",
+      },
+    },
+  },
+});
+const TrackNumber = styled("span", {
+  variants: {
+    type: {
+      selected: {
+        color: "#fee36e",
+        fontWeight: "bold",
+      },
+    },
+  },
+});
 type Props = {
   playlistId: string;
+  scrollableRef: MutableRefObject<null>;
+  targetRef: MutableRefObject<any>;
 };
 export const Playlist = (props: Props) => {
   const queryClient = useQueryClient();
@@ -28,6 +87,8 @@ export const Playlist = (props: Props) => {
   const [nextPageToken, setNextPageToken] = useState<string | undefined>(
     undefined
   );
+  const selectedTrackNumber = useStore((state) => state.selectedTrackNumber);
+  const setSelectedTrack = useStore((state) => state.setSelectedTrack);
   const { data, error, isFetching } = useQuery(
     [PLAYLIST_ITEMS, page],
     async () => {
@@ -66,7 +127,8 @@ export const Playlist = (props: Props) => {
   }
 
   return (
-    <>
+    <Container>
+      <h1>My playlist</h1>
       {isFetching ? (
         <Loader color="#CED4DA" size="xl" variant="bars" />
       ) : (
@@ -80,14 +142,27 @@ export const Playlist = (props: Props) => {
                   data.pageInfo.totalResults / data.pageInfo.resultsPerPage
                 )}
               />
-              <ul className={styles.grid}>
-                {data.items.map(({ id, snippet }) => {
+              <PlaylistGrid grow gutter="xs" ref={props.scrollableRef}>
+                {data.items.map(({ id, snippet }, index) => {
                   const { title, thumbnails, resourceId } = snippet;
+                  const trackNumber =
+                    (page - 1) * MAX_RESULTS_PER_PAGE_API + index + 1;
+                  const isSelected = trackNumber === selectedTrackNumber;
+                  const type = isSelected ? "selected" : undefined;
                   return (
-                    <li key={id} className={styles.card}>
-                      <a
-                        href={`https://www.youtube.com/watch?v=${resourceId.videoId}&list=${props.playlistId}`}
+                    <div
+                      key={id}
+                      ref={isSelected ? props.targetRef : undefined}
+                    >
+                      <PlaylistItem
+                        span={4}
+                        type={type}
+                        key={id}
+                        onClick={() =>
+                          setSelectedTrack(resourceId.videoId, trackNumber)
+                        }
                       >
+                        <TrackNumber type={type}>{trackNumber}</TrackNumber>
                         <Box
                           css={{
                             width: 300,
@@ -107,15 +182,15 @@ export const Playlist = (props: Props) => {
                           </AspectRatioPrimitive.Root>
                         </Box>
                         <h3>{title}</h3>
-                      </a>
-                    </li>
+                      </PlaylistItem>
+                    </div>
                   );
                 })}
-              </ul>
+              </PlaylistGrid>
             </>
           )}
         </>
       )}
-    </>
+    </Container>
   );
 };
