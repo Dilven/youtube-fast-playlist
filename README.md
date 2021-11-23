@@ -7,6 +7,7 @@
 ## About
 
 App for quick access to youtube videos from your playlist
+
 - move to the end of the playlist with a single click
 - scroll to the currently playing track
 - embedded youtube player

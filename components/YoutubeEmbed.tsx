@@ -3,6 +3,7 @@ import { useStore } from "store";
 import { styled } from "@stitches/react";
 import { ActionIcon } from "@mantine/core";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
+import YouTube from "react-youtube";
 
 const Container = styled("div", {
   display: "inline-flex",
@@ -32,14 +33,11 @@ export const YoutubeEmbed = (props: Props) => {
     <Container>
       {selectedTrack && (
         <>
-          <iframe
-            width="853"
-            height="480"
-            src={`https://www.youtube.com/embed/${selectedTrack}`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            title="Embedded youtube"
+          <YouTube
+            videoId={selectedTrack}
+            onEnd={() => {
+              console.log("onEnd");
+            }}
           />
           <GoToTrack>
             <span>Track: {selectedTrackNumber} </span>
