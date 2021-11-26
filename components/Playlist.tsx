@@ -144,7 +144,6 @@ export const Playlist = (props: Props) => {
           )
         queryClient.setQueryData([PLAYLIST_ITEMS, nextTrackPage], nextPageTracks)
         tracks = nextPageTracks
-        console.log('tutaj?')
       } 
       const track = tracks?.items[nextTrackIndex]
       if(!track) return;
