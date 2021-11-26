@@ -4,6 +4,7 @@ import { styled } from "@stitches/react";
 import { ActionIcon } from "@mantine/core";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import YouTube from "react-youtube";
+import { useRouter } from "next/dist/client/router";
 
 const Container = styled("div", {
   display: "inline-flex",
@@ -20,6 +21,7 @@ const GoToTrack = styled("div", {
   display: "flex",
 });
 type Props = {
+  playlistId: string;
   scrollIntoView: ({
     alignment,
   }?: {
@@ -29,6 +31,7 @@ type Props = {
 export const YoutubeEmbed = (props: Props) => {
   const selectedTrack = useStore((state) => state.selectedTrack);
   const selectedTrackNumber = useStore((state) => state.selectedTrackNumber);
+
   return (
     <Container>
       {selectedTrack && (
@@ -37,6 +40,12 @@ export const YoutubeEmbed = (props: Props) => {
             videoId={selectedTrack}
             onEnd={() => {
               console.log("onEnd");
+            }}
+            opts={{
+              playerVars: {
+                listType: 'playlist',
+                list: props.playlistId
+              }
             }}
           />
           <GoToTrack>

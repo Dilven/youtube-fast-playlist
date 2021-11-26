@@ -48,7 +48,7 @@ const Home: NextPage<Props> = (props) => {
       <main>
         {playlistToShow ? (
           <SimpleGrid cols={2} spacing="sm">
-            <YoutubeEmbed scrollIntoView={scrollIntoView} />
+            <YoutubeEmbed playlistId={playlistToShow} scrollIntoView={scrollIntoView} />
             <Playlist
               scrollableRef={scrollableRef}
               targetRef={targetRef}
