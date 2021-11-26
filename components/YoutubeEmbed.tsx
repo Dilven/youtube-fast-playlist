@@ -1,8 +1,9 @@
 import { useStore } from "store";
 
 import { styled } from "@stitches/react";
-import { Button } from "@mantine/core";
+import { Button, Switch } from "@mantine/core";
 import YouTube from "react-youtube";
+import { useEffect } from "react";
 
 const Container = styled("div", {
   display: "inline-flex",
@@ -35,18 +36,34 @@ type Props = {
 export const YoutubeEmbed = (props: Props) => {
   const selectedTrack = useStore((state) => state.selectedTrack);
   const selectedTrackNumber = useStore((state) => state.selectedTrackNumber);
-
+  const setTrackStatus = useStore((state) => state.setTrackStatus);
+  const setAutoPlay = useStore((state) => state.setAutoPlay);
+  const autoplay = useStore((state) => state.autoplay);
   return (
     <Container>
       {selectedTrack && (
         <>
           <YouTube
             videoId={selectedTrack}
+            opts={{
+              playerVars: {autoplay: autoplay ? 1 : 0 },
+            }}
+            onPlay={() => {
+              setTrackStatus('play')
+            }}
             onEnd={() => {
-              console.log("onEnd");
+              setTrackStatus('finish')
+            }}
+            onPause={() => {
+              setTrackStatus('pause')
             }}
           />
           <Actions>
+            <Switch
+              checked={autoplay}
+              onClick={(event) => setAutoPlay(event.currentTarget.checked)}
+              label="Autoplay"
+            />
             <span>Track: {selectedTrackNumber} </span>
             <Button 
               variant="gradient"

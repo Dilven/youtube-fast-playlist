@@ -6,13 +6,13 @@ import {
   Notification,
   Pagination,
 } from "@mantine/core";
-import { useScrollIntoView } from "@mantine/hooks";
 import { blackA } from "@radix-ui/colors";
 import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { styled } from "@stitches/react";
 import { PLAYLIST_ITEMS } from "constants/query-keys";
 import { ApiResponse } from "models/youtube";
+import { useRouter } from "next/dist/client/router";
 import Image from "next/image";
 import { MutableRefObject, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
@@ -87,30 +87,73 @@ export const Playlist = (props: Props) => {
   const [nextPageToken, setNextPageToken] = useState<string | undefined>(
     undefined
   );
+  const autoplay = useStore(store => store.autoplay)
+  const router = useRouter()
   const selectedTrackNumber = useStore((state) => state.selectedTrackNumber);
-  const setSelectedTrack = useStore((state) => state.setSelectedTrack);
+  const setSelectedTrack = useStore((state) => (selectedTrack?: string | undefined, selectedTrackNumber?: number | undefined) => {
+    state.setSelectedTrack(selectedTrack, selectedTrackNumber);
+    router.push(
+      {
+        query: {
+          ...router.query,
+          track: selectedTrack,
+        },
+      },
+      undefined,
+      { shallow: true }
+    );
+  });
+  const getData = async () => {
+    const pages = Math.max(page - previousPage, 1);
+    const allItems = await InternalApi.fetchPlaylistItems(
+      props.playlistId,
+      pages,
+      nextPageToken
+    );
+    const currentPageItems = allItems.at(-1);
+    const restItems = allItems.slice(0, -1);
+    restItems.forEach((items, index) => {
+      queryClient.setQueryData<ApiResponse>(
+        [PLAYLIST_ITEMS, previousPage + index + 1],
+        () => items
+      );
+    });
+    return currentPageItems;
+  }
+  const state = useStore((state) => state);
   const { data, error, isFetching } = useQuery(
     [PLAYLIST_ITEMS, page],
-    async () => {
-      const pages = Math.max(page - previousPage, 1);
-      const allItems = await InternalApi.fetchPlaylistItems(
-        props.playlistId,
-        pages,
-        nextPageToken
-      );
-      const currentPageItems = allItems.at(-1);
-      const restItems = allItems.slice(0, -1);
-      restItems.forEach((items, index) => {
-        queryClient.setQueryData<ApiResponse>(
-          [PLAYLIST_ITEMS, previousPage + index + 1],
-          () => items
-        );
-      });
-      return currentPageItems;
-    },
+    getData,
     { keepPreviousData: true }
   );
+  useEffect(() => {
+    async function nextTrack() {
 
+      if(!autoplay) return;
+      if(state.trackStatus !== 'finish' || !selectedTrackNumber) return;
+      const selectedTrackNumberPage = Math.ceil(selectedTrackNumber / MAX_RESULTS_PER_PAGE_API)
+      const nextTrackIndex = selectedTrackNumber % MAX_RESULTS_PER_PAGE_API
+      const nextTrackPage = nextTrackIndex === 0 ? selectedTrackNumberPage + 1 : selectedTrackNumberPage
+      let tracks = queryClient.getQueryData<ApiResponse>([PLAYLIST_ITEMS, nextTrackPage])
+      
+      if(!tracks) {
+        const [nextPageTracks] = await InternalApi.fetchPlaylistItems(
+          props.playlistId,
+          nextTrackPage,
+          nextPageToken
+          )
+        queryClient.setQueryData([PLAYLIST_ITEMS, nextTrackPage], nextPageTracks)
+        tracks = nextPageTracks
+        console.log('tutaj?')
+      } 
+      const track = tracks?.items[nextTrackIndex]
+      if(!track) return;
+      if(selectedTrackNumberPage !== nextTrackPage) setPage(nextTrackPage)
+      setSelectedTrack(track?.snippet.resourceId.videoId, selectedTrackNumber + 1)
+    }
+    nextTrack()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.trackStatus])
   const onChangePage = (selectedPage: number) => {
     setPreviousPage(page);
     setPage(selectedPage);
@@ -125,7 +168,7 @@ export const Playlist = (props: Props) => {
       </Notification>
     );
   }
-
+  
   return (
     <Container>
       <h1>My playlist</h1>
@@ -133,7 +176,7 @@ export const Playlist = (props: Props) => {
         <Loader color="#CED4DA" size="xl" variant="bars" />
       ) : (
         <>
-          {data && (
+          {(data && data.pageInfo) && (
             <>
               <Pagination
                 page={page}

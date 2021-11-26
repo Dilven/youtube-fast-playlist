@@ -13,7 +13,6 @@ const fetchPlaylistItems = async (
     pageToken,
   });
   const url = `/api/playlistitem${query}`;
-  console.log("🚀 ~ file: internal-api.ts ~ line 16 ~ url", url);
   const { data } = await axios.get(url);
   return data;
 };
