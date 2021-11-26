@@ -12,6 +12,7 @@ App for quick access to youtube videos from your playlist
 - scroll to the currently playing track
 - embedded youtube player
 - after switching to the selected page the preceding pages are cached
+- autoplay playlist
 
 example https://youtube-fast-playlist.vercel.app/?playlistId=PLPSk39C-ml8sAklFfKTlVJcGTpGiwugC4
 
