@@ -75,6 +75,12 @@ const TrackNumber = styled("span", {
     },
   },
 });
+
+const TrackTitle = styled('h3', {
+  maxWidth: '230px',
+  margin: '0',
+  display: 'block',
+})
 type Props = {
   playlistId: string;
   scrollableRef: MutableRefObject<null>;
@@ -223,7 +229,7 @@ export const Playlist = (props: Props) => {
                             )}
                           </AspectRatioPrimitive.Root>
                         </Box>
-                        <h3>{title}</h3>
+                        <TrackTitle>{title}</TrackTitle>
                       </PlaylistItem>
                     </div>
                   );

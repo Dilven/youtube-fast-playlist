@@ -10,7 +10,7 @@ const Container = styled("div", {
   flexDirection: "column",
   marginTop: "50px",
   alignItems: "center",
-  marginLeft: "30px",
+  marginLeft: "0px",
   padding: "10px",
 
   "& span": { display: "flex", alignItems: "center" },
