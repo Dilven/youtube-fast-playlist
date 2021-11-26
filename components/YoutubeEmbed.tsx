@@ -1,10 +1,8 @@
 import { useStore } from "store";
 
 import { styled } from "@stitches/react";
-import { ActionIcon } from "@mantine/core";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { Button } from "@mantine/core";
 import YouTube from "react-youtube";
-import { useRouter } from "next/dist/client/router";
 
 const Container = styled("div", {
   display: "inline-flex",
@@ -17,9 +15,15 @@ const Container = styled("div", {
   "& span": { display: "flex", alignItems: "center" },
 });
 
-const GoToTrack = styled("div", {
+const Actions = styled("div", {
   display: "flex",
+  alignItems: 'space-between',
+
+  "& > *": {
+    margin: '5px'
+  }
 });
+
 type Props = {
   playlistId: string;
   scrollIntoView: ({
@@ -41,25 +45,28 @@ export const YoutubeEmbed = (props: Props) => {
             onEnd={() => {
               console.log("onEnd");
             }}
-            opts={{
-              playerVars: {
-                listType: 'playlist',
-                list: props.playlistId
-              }
-            }}
           />
-          <GoToTrack>
+          <Actions>
             <span>Track: {selectedTrackNumber} </span>
-            <ActionIcon
-              color="yellow"
+            <Button 
+              variant="gradient"
+              gradient={{ from: 'orange', to: 'red' }}
+              component="a"
+              href={`https://youtube.com/watch?v=${selectedTrack}&list=${props.playlistId}`}
+              target="_blank"
+            >
+              Go to youtube
+            </Button>
+            <Button 
+              variant="gradient" 
               onClick={() => {
-                console.log("foo");
                 props.scrollIntoView();
               }}
+              gradient={{ from: 'teal', to: 'blue', deg: 60 }}
             >
-              <ArrowRightIcon />
-            </ActionIcon>
-          </GoToTrack>
+              Scroll to track
+            </Button>
+          </Actions>
         </>
       )}
     </Container>
