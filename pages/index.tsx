@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import { Playlist } from "components/Playlist";
-import { Button, Center, SimpleGrid, TextInput } from "@mantine/core";
+import { Button, Center as CenterMantine, SimpleGrid, TextInput } from "@mantine/core";
 import { useForm, useScrollIntoView } from "@mantine/hooks";
 import { useState } from "react";
 import { useRouter } from "next/dist/client/router";
@@ -24,6 +24,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 type Props = {
   playlistId?: string;
 };
+
+const Form = styled('form', {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+  gap: '10px'
+})
+
+const Center = styled('div', {
+  display: 'flex',
+  justifyContent: 'center',
+  margin: '20%'
+})
 
 const Home: NextPage<Props> = (props) => {
   const [playlistToShow, setPlaylistToShow] = useState(props.playlistId);
@@ -57,7 +70,7 @@ const Home: NextPage<Props> = (props) => {
           </SimpleGrid>
         ) : (
           <Center>
-            <form
+            <Form
               onSubmit={form.onSubmit((values) => {
                 router.push(
                   {
@@ -81,8 +94,8 @@ const Home: NextPage<Props> = (props) => {
                 id="input-demo"
                 placeholder="Playlist id"
               />
-              <Button type="submit">Show</Button>
-            </form>
+              <Button color="yellow" type="submit">Show</Button>
+            </Form>
           </Center>
         )}
       </main>

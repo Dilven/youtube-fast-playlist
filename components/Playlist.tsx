@@ -27,7 +27,7 @@ const Img = styled(Image, {
 const Box = styled("div", {});
 
 const PlaylistGrid = styled(Grid, {
-  marginTop: "30px",
+  marginTop: "15px",
   maxHeight: "calc(100vh - 195px)",
   overflowY: "scroll",
   overflowX: "unset",
@@ -184,6 +184,9 @@ export const Playlist = (props: Props) => {
           {(data && data.pageInfo) && (
             <>
               <Pagination
+                color="yellow" 
+                radius="lg" 
+                withEdges
                 page={page}
                 onChange={onChangePage}
                 total={Math.ceil(
