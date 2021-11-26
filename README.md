@@ -1,8 +1,6 @@
 # Youtube-fast-playlist
 
-<p align="center">
-   <img src="docs/demo.png"><br/>
-</p>
+![image](https://user-images.githubusercontent.com/26671751/143577181-51ce7d31-366f-40b9-bbab-4a683767c7b4.png)
 
 ## About
 
@@ -12,6 +10,7 @@ App for quick access to youtube videos from your playlist
 - scroll to the currently playing track
 - embedded youtube player
 - after switching to the selected page the preceding pages are cached
+- autoplay playlist
 
 example https://youtube-fast-playlist.vercel.app/?playlistId=PLPSk39C-ml8sAklFfKTlVJcGTpGiwugC4
 
