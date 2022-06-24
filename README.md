@@ -1,3 +1,4 @@
+[Code needs refactoring. Application created only to quickly solve the problem of accessing songs on playlist]
 # Youtube-fast-playlist
 
 ![image](https://user-images.githubusercontent.com/26671751/143577181-51ce7d31-366f-40b9-bbab-4a683767c7b4.png)
