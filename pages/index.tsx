@@ -1,12 +1,18 @@
 import type { GetServerSidePropsContext, NextPage } from "next";
 import Head from "next/head";
 import { Playlist } from "components/Playlist";
-import { Button, Center as CenterMantine, SimpleGrid, TextInput } from "@mantine/core";
+import {
+  Button,
+  Center as CenterMantine,
+  SimpleGrid,
+  TextInput,
+} from "@mantine/core";
 import { useForm, useScrollIntoView } from "@mantine/hooks";
 import { useState } from "react";
 import { useRouter } from "next/dist/client/router";
 import { YoutubeEmbed } from "components/YoutubeEmbed";
 import { styled } from "@stitches/react";
+import { YoutubeProvider } from "context/youtube";
 
 const Main = styled("main", {
   paddingTop: "30px",
@@ -25,18 +31,18 @@ type Props = {
   playlistId?: string;
 };
 
-const Form = styled('form', {
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  gap: '10px'
-})
+const Form = styled("form", {
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  gap: "10px",
+});
 
-const Center = styled('div', {
-  display: 'flex',
-  justifyContent: 'center',
-  margin: '20%'
-})
+const Center = styled("div", {
+  display: "flex",
+  justifyContent: "center",
+  margin: "20%",
+});
 
 const Home: NextPage<Props> = (props) => {
   const [playlistToShow, setPlaylistToShow] = useState(props.playlistId);
@@ -61,12 +67,17 @@ const Home: NextPage<Props> = (props) => {
       <main>
         {playlistToShow ? (
           <SimpleGrid cols={2} spacing="sm">
-            <YoutubeEmbed playlistId={playlistToShow} scrollIntoView={scrollIntoView} />
-            <Playlist
-              scrollableRef={scrollableRef}
-              targetRef={targetRef}
-              playlistId={playlistToShow}
-            />
+            <YoutubeProvider playlistId={playlistToShow}>
+              <YoutubeEmbed
+                playlistId={playlistToShow}
+                scrollIntoView={scrollIntoView}
+              />
+              <Playlist
+                scrollableRef={scrollableRef}
+                targetRef={targetRef}
+                playlistId={playlistToShow}
+              />
+            </YoutubeProvider>
           </SimpleGrid>
         ) : (
           <Center>
@@ -94,7 +105,9 @@ const Home: NextPage<Props> = (props) => {
                 id="input-demo"
                 placeholder="Playlist id"
               />
-              <Button color="yellow" type="submit">Show</Button>
+              <Button color="yellow" type="submit">
+                Show
+              </Button>
             </Form>
           </Center>
         )}

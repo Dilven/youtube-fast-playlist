@@ -4,6 +4,12 @@ import { styled } from "@stitches/react";
 import { Button, Switch } from "@mantine/core";
 import YouTube from "react-youtube";
 import { useEffect } from "react";
+import { MAX_RESULTS_PER_PAGE_API } from "services/youtube";
+import { ApiResponse } from "models/youtube";
+import { PLAYLIST_ITEMS } from "constants/query-keys";
+import { useQueryClient } from "react-query";
+import { InternalApi } from "services/internal-api";
+import { useYoutubeContext } from "hooks/useYoutubeContext";
 
 const Container = styled("div", {
   display: "inline-flex",
@@ -18,11 +24,11 @@ const Container = styled("div", {
 
 const Actions = styled("div", {
   display: "flex",
-  alignItems: 'space-between',
+  alignItems: "space-between",
 
   "& > *": {
-    margin: '5px'
-  }
+    margin: "5px",
+  },
 });
 
 type Props = {
@@ -38,7 +44,10 @@ export const YoutubeEmbed = (props: Props) => {
   const selectedTrackNumber = useStore((state) => state.selectedTrackNumber);
   const setTrackStatus = useStore((state) => state.setTrackStatus);
   const setAutoPlay = useStore((state) => state.setAutoPlay);
+
+  const { nextTrack } = useYoutubeContext();
   const autoplay = useStore((state) => state.autoplay);
+
   return (
     <Container>
       {selectedTrack && (
@@ -46,16 +55,16 @@ export const YoutubeEmbed = (props: Props) => {
           <YouTube
             videoId={selectedTrack}
             opts={{
-              playerVars: {autoplay: autoplay ? 1 : 0 },
+              playerVars: { autoplay: autoplay ? 1 : 0 },
             }}
             onPlay={() => {
-              setTrackStatus('play')
+              setTrackStatus("play");
             }}
             onEnd={() => {
-              setTrackStatus('finish')
+              setTrackStatus("finish");
             }}
             onPause={() => {
-              setTrackStatus('pause')
+              setTrackStatus("pause");
             }}
           />
           <Actions>
@@ -65,23 +74,32 @@ export const YoutubeEmbed = (props: Props) => {
               label="Autoplay"
             />
             <span>Track: {selectedTrackNumber} </span>
-            <Button 
+            <Button
               variant="gradient"
-              gradient={{ from: 'orange', to: 'red' }}
+              gradient={{ from: "orange", to: "red" }}
               component="a"
               href={`https://youtube.com/watch?v=${selectedTrack}&list=${props.playlistId}`}
               target="_blank"
             >
               Go to youtube
             </Button>
-            <Button 
-              variant="gradient" 
+            <Button
+              variant="gradient"
               onClick={() => {
                 props.scrollIntoView();
               }}
-              gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+              gradient={{ from: "teal", to: "blue", deg: 60 }}
             >
               Scroll to track
+            </Button>
+            <Button
+              variant="gradient"
+              onClick={() => {
+                nextTrack();
+              }}
+              gradient={{ from: "teal", to: "blue", deg: 60 }}
+            >
+              Next
             </Button>
           </Actions>
         </>

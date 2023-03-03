@@ -1,6 +1,6 @@
-import create from 'zustand'
+import create from "zustand";
 
-type TrackStatus = 'finish' | 'play' | 'pause'
+type TrackStatus = "finish" | "play" | "pause";
 
 type State = {
   autoplay?: boolean;

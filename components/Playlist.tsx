@@ -10,15 +10,10 @@ import { blackA } from "@radix-ui/colors";
 import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { styled } from "@stitches/react";
-import { PLAYLIST_ITEMS } from "constants/query-keys";
-import { ApiResponse } from "models/youtube";
-import { useRouter } from "next/dist/client/router";
+import { useYoutubeContext } from "hooks/useYoutubeContext";
 import Image from "next/image";
-import { MutableRefObject, useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
-import { InternalApi } from "services/internal-api";
+import { MutableRefObject } from "react";
 import { MAX_RESULTS_PER_PAGE_API } from "services/youtube";
-import { useStore } from "store";
 
 const Img = styled(Image, {
   objectFit: "cover",
@@ -49,7 +44,7 @@ const PlaylistGrid = styled(Grid, {
   "& > li": {
     minWidth: "100%",
   },
-});
+}) as any;
 
 const PlaylistItem = styled(Col, {
   cursor: "pointer",
@@ -76,96 +71,26 @@ const TrackNumber = styled("span", {
   },
 });
 
-const TrackTitle = styled('h3', {
-  maxWidth: '230px',
-  margin: '0',
-  display: 'block',
-})
+const TrackTitle = styled("h3", {
+  maxWidth: "230px",
+  margin: "0",
+  display: "block",
+});
 type Props = {
   playlistId: string;
   scrollableRef: MutableRefObject<null>;
   targetRef: MutableRefObject<any>;
 };
 export const Playlist = (props: Props) => {
-  const queryClient = useQueryClient();
-  const [previousPage, setPreviousPage] = useState(1);
-  const [page, setPage] = useState(1);
-  const [nextPageToken, setNextPageToken] = useState<string | undefined>(
-    undefined
-  );
-  const autoplay = useStore(store => store.autoplay)
-  const router = useRouter()
-  const selectedTrackNumber = useStore((state) => state.selectedTrackNumber);
-  const setSelectedTrack = useStore((state) => (selectedTrack?: string | undefined, selectedTrackNumber?: number | undefined) => {
-    state.setSelectedTrack(selectedTrack, selectedTrackNumber);
-    router.push(
-      {
-        query: {
-          ...router.query,
-          track: selectedTrack,
-        },
-      },
-      undefined,
-      { shallow: true }
-    );
-  });
-  const getData = async () => {
-    const pages = Math.max(page - previousPage, 1);
-    const allItems = await InternalApi.fetchPlaylistItems(
-      props.playlistId,
-      pages,
-      nextPageToken
-    );
-    const currentPageItems = allItems.at(-1);
-    const restItems = allItems.slice(0, -1);
-    restItems.forEach((items, index) => {
-      queryClient.setQueryData<ApiResponse>(
-        [PLAYLIST_ITEMS, previousPage + index + 1],
-        () => items
-      );
-    });
-    return currentPageItems;
-  }
-  const state = useStore((state) => state);
-  const { data, error, isFetching } = useQuery(
-    [PLAYLIST_ITEMS, page],
-    getData,
-    { keepPreviousData: true }
-  );
-  useEffect(() => {
-    async function nextTrack() {
-
-      if(!autoplay) return;
-      if(state.trackStatus !== 'finish' || !selectedTrackNumber) return;
-      const selectedTrackNumberPage = Math.ceil(selectedTrackNumber / MAX_RESULTS_PER_PAGE_API)
-      const nextTrackIndex = selectedTrackNumber % MAX_RESULTS_PER_PAGE_API
-      const nextTrackPage = nextTrackIndex === 0 ? selectedTrackNumberPage + 1 : selectedTrackNumberPage
-      let tracks = queryClient.getQueryData<ApiResponse>([PLAYLIST_ITEMS, nextTrackPage])
-      
-      if(!tracks) {
-        const [nextPageTracks] = await InternalApi.fetchPlaylistItems(
-          props.playlistId,
-          nextTrackPage,
-          nextPageToken
-          )
-        queryClient.setQueryData([PLAYLIST_ITEMS, nextTrackPage], nextPageTracks)
-        tracks = nextPageTracks
-      } 
-      const track = tracks?.items[nextTrackIndex]
-      if(!track) return;
-      if(selectedTrackNumberPage !== nextTrackPage) setPage(nextTrackPage)
-      setSelectedTrack(track?.snippet.resourceId.videoId, selectedTrackNumber + 1)
-    }
-    nextTrack()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.trackStatus])
-  const onChangePage = (selectedPage: number) => {
-    setPreviousPage(page);
-    setPage(selectedPage);
-  };
-  useEffect(() => {
-    setNextPageToken(data?.nextPageToken);
-  }, [data?.nextPageToken]);
+  const {
+    error,
+    data,
+    isFetching,
+    onChangePage,
+    page,
+    setSelectedTrack,
+    selectedTrackNumber,
+  } = useYoutubeContext();
   if (error) {
     return (
       <Notification icon={<Cross1Icon />} onClose={() => {}} color="red">
@@ -173,7 +98,7 @@ export const Playlist = (props: Props) => {
       </Notification>
     );
   }
-  
+
   return (
     <Container>
       <h1>My playlist</h1>
@@ -181,11 +106,11 @@ export const Playlist = (props: Props) => {
         <Loader color="#CED4DA" size="xl" variant="bars" />
       ) : (
         <>
-          {(data && data.pageInfo) && (
+          {data && data.pageInfo && (
             <>
               <Pagination
-                color="yellow" 
-                radius="lg" 
+                color="yellow"
+                radius="lg"
                 withEdges
                 page={page}
                 onChange={onChangePage}
